@@ -1,14 +1,23 @@
 '''The Bloomfilter class file.'''
 
+import struct
 from bitlist import BitList
 
 class Bloomfilter:
     '''The Bloomfilter class.'''
 
-    def __init__(self, nbits, nhashs):
-        self.nbits = nbits
-        self.nhashs = nhashs
-        self.bucket = BitList(nbits)
+    def __init__(self, nbits_or_filepath, nhashs = 1):
+        if isinstance(nbits_or_filepath, int):
+            self.nbits = nbits_or_filepath
+            self.nhashs = nhashs
+            self.bucket = BitList(nbits_or_filepath)
+        elif isinstance(nbits_or_filepath, str):
+            file = open(nbits_or_filepath, 'rb')
+            self.nbits = struct.unpack('i', file.read(4))[0]
+            self.nhashs = struct.unpack('i', file.read(4))[0]
+            self.bucket = BitList(file.read())
+            file.close()
+
 
     def add(self, item):
         if isinstance(item, str):
@@ -25,6 +34,11 @@ class Bloomfilter:
             if self.bucket.get_bit(loc) == 0:
                 return False
         return True
+
+    def save(self, filepath):
+        file = open(filepath, 'wb')
+        file.write(struct.pack('i', self.nbits) + struct.pack('i', self.nhashs) + self.bucket.main_object)
+        file.close()
 
     def _location(self, item):
         def fnv_multiply(a):
