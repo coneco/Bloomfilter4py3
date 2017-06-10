@@ -31,3 +31,6 @@ Bloomfilter.add(str)
 
 Bloomfilter.test(str)
     Return a True if str might in the filter.
+
+str in Bloomfilter
+    return Bloomfilter.test(str)
