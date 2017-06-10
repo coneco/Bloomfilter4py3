@@ -6,6 +6,8 @@ from bitlist import BitList
 class Bloomfilter:
     '''The Bloomfilter class.'''
 
+    __slots__ = ("nbits", "nhashs", "bucket")
+
     def __init__(self, nbits_or_filepath, nhashs = 1):
         if isinstance(nbits_or_filepath, int):
             self.nbits = nbits_or_filepath
@@ -70,3 +72,12 @@ class Bloomfilter:
             ret_locations.append(a_hash)
             a_hash = (a_hash + b_hash) % self.nbits
         return ret_locations
+
+    def __len__(self):
+        return self.bucket.length
+
+    def __repr__(self):
+        return "<Bloomfilter with {:d} bits and {:d} hash functions>".format(self.nbits, self.nhashs)
+
+    def __contains__(self, item):
+        return self.test(item)
